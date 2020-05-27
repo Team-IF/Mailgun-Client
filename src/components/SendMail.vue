@@ -78,23 +78,26 @@
 </template>
 
 <script>
+import Axios from 'axios'
+import { config } from './../../config'
+
 export default {
   name: 'SendMail',
   data: () => ({
     template: false,
     form: {
-      from: '',
+      from: 'Team IF <no-reply@teamif.io>',
       fromRule: [v => !!v || '보내는사람은 무조건 적어야합니다'],
-      to: '',
+      to: 'me@gangjun.dev',
       toRule: [v => !!v || '받는사람은 무조건 적어야합니다'],
-      subject: '',
+      subject: 'a',
       subjectRule: [v => !!v || '제목은 무조건 작성하여야 합니다'],
       text: ''
     },
     invitation: {
       title: '',
       titleRule: [v => !!v || '타이틀은 무조건 적어야합니다'],
-      content: [],
+      content: '',
       contentRule: [v => !!v || '내용은 무조건 적어야합니다'],
       discord: '',
       discordRule: [v => !!v || '디스코드 태그는 무조건 적어야합니다'],
@@ -107,8 +110,57 @@ export default {
   },
   methods: {
     sendMail() {
-      this.resetForm()
       this.$refs.form.validate()
+      if (this.template) {
+        if (this.invitation.content.includes('\n')) {
+          this.invitation.content = this.invitation.content.split('\n')
+        }
+        Axios.post(
+          'http://localhost:3000/mail/invitation',
+          {
+            from: this.form.from,
+            to: this.form.to,
+            subject: this.form.subject,
+            title: this.invitation.title,
+            year: this.invitation.year,
+            discord: this.invitation.discord,
+            content: this.invitation.content
+          },
+          {
+            auth: {
+              username: 'admin',
+              password: config.password
+            }
+          }
+        ).then(result => {
+          console.log(result.data)
+          alert(
+            '메일이 전송되었습니다.\nctrl+shift+i를 눌러 콘솔에서 로그를 확인하세요'
+          )
+        })
+      } else {
+        Axios.post(
+          'http://localhost:3000/mail/invitation',
+          {
+            from: this.form.from,
+            to: this.form.to,
+            subject: this.form.subject,
+            text: this.form.text
+          },
+          {
+            auth: {
+              username: 'admin',
+              password: config.password
+            }
+          }
+        ).then(result => {
+          console.log(result.data)
+          alert(
+            '메일이 전송되었습니다.\nctrl+shift+i를 눌러 콘솔에서 로그를 확인하세요'
+          )
+        })
+      }
+      this.resetForm()
     },
     resetForm() {
       this.$refs.form.reset()
