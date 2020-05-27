@@ -114,6 +114,8 @@ export default {
       if (this.template) {
         if (this.invitation.content.includes('\n')) {
           this.invitation.content = this.invitation.content.split('\n')
+        } else {
+          this.invitation.content = [this.invitation.content]
         }
         Axios.post(
           'http://localhost:3000/mail/invitation',
@@ -140,7 +142,7 @@ export default {
         })
       } else {
         Axios.post(
-          'http://localhost:3000/mail/invitation',
+          'http://localhost:3000/mail',
           {
             from: this.form.from,
             to: this.form.to,
